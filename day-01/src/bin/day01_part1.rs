@@ -1,6 +1,6 @@
+use anyhow::Context;
 use std::fs;
 use std::io::{BufRead, BufReader};
-use anyhow::Context;
 
 fn main() -> anyhow::Result<()> {
     let r = BufReader::new(fs::File::open("day-01/data/input.txt")?);
@@ -17,8 +17,8 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn parse_line(line: &str) -> anyhow::Result<Option<u32>> {
-    let left = line.chars().into_iter().find(|x| x.is_numeric());
-    let right = line.chars().into_iter().rev().find(|x| x.is_numeric());
+    let left = line.chars().find(|x| x.is_numeric());
+    let right = line.chars().rev().find(|x| x.is_numeric());
 
     match (left, right) {
         (Some(left), Some(right)) => {
@@ -29,11 +29,10 @@ fn parse_line(line: &str) -> anyhow::Result<Option<u32>> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use indoc::indoc;
     use super::*;
+    use indoc::indoc;
 
     #[test]
     fn test_part1() {

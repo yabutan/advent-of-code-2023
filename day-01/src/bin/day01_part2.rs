@@ -1,6 +1,6 @@
+use anyhow::Context;
 use std::fs;
 use std::io::{BufRead, BufReader};
-use anyhow::Context;
 
 fn main() -> anyhow::Result<()> {
     let r = BufReader::new(fs::File::open("day-01/data/input.txt")?);
@@ -28,10 +28,10 @@ const SPELLED: [(u32, &str); 9] = [
     (9, "nine"),
 ];
 
-
 fn find(line: &str) -> Option<u32> {
     // (index, value)
-    let mut x = line.find(char::is_numeric)
+    let mut x = line
+        .find(char::is_numeric)
         .map(|i| (i, line.chars().nth(i).unwrap()))
         .map(|(i, c)| (i, c.to_digit(10).unwrap()));
 
@@ -53,10 +53,10 @@ fn find(line: &str) -> Option<u32> {
     Some(x?.1)
 }
 
-
 fn rfind(line: &str) -> Option<u32> {
     // (index, value)
-    let mut x = line.rfind(char::is_numeric)
+    let mut x = line
+        .rfind(char::is_numeric)
         .map(|i| (i, line.chars().nth(i).unwrap()))
         .map(|(i, c)| (i, c.to_digit(10).unwrap()));
 
@@ -91,11 +91,10 @@ fn parse_line_with_spelled(line: &str) -> anyhow::Result<Option<u32>> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use indoc::indoc;
     use super::*;
+    use indoc::indoc;
 
     #[test]
     fn test_part1() {
