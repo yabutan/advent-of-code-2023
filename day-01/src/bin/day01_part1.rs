@@ -3,7 +3,7 @@ use std::io::{BufRead, BufReader};
 use anyhow::Context;
 
 fn main() -> anyhow::Result<()> {
-    let r = BufReader::new(fs::File::open("./data/input.txt")?);
+    let r = BufReader::new(fs::File::open("day-01/data/input.txt")?);
 
     let mut total = 0;
     for line in r.lines() {
