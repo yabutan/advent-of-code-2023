@@ -2,8 +2,8 @@ use std::cmp::{max, min};
 
 use nom::bytes::complete::take_till;
 use nom::character::complete::digit1;
-use nom::IResult;
 use nom::multi::many0;
+use nom::IResult;
 use nom_locate::LocatedSpan;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -13,29 +13,23 @@ pub struct Number<'a> {
 }
 
 impl<'a> Number<'a> {
+    pub fn value_as_u64(&self) -> u64 {
+        self.value.parse::<u64>().expect("should be number")
+    }
+
     /// シンボルと隣接しているかどうかを判定
     pub fn is_adjacent_symbol(&self, data: &[&str]) -> bool {
-        let pos_x = self.pos.0 as usize;
-        let pos_y = self.pos.1 as usize;
-
-        let range_x =
-            max(0, pos_x.saturating_sub(1))..min(data[0].len(), pos_x + self.value.len() + 1);
-        let range_y = max(0, pos_y.saturating_sub(1))..min(data.len(), pos_y + 2);
-
-        for y in range_y {
-            let line = data[y];
-            let s = &line[range_x.clone()];
-
-            if let Some(_index_of_symbol) = s.find(|c: char| c != '.' && c.is_ascii_punctuation()) {
-                return true;
-            }
-        }
-
-        false
+        self.find_round(data, |c: char| c != '.' && c.is_ascii_punctuation())
+            .is_some()
     }
 
     /// 隣接しているギアの位置を返す、なければNone
     pub fn gear_pos(&self, data: &[&str]) -> Option<(u32, u32)> {
+        self.find_round(data, |c: char| c == '*')
+    }
+
+    /// 周りの指定文字の位置を返す、なければNone
+    fn find_round(&self, data: &[&str], pat: fn(char) -> bool) -> Option<(u32, u32)> {
         let pos_x = self.pos.0 as usize;
         let pos_y = self.pos.1 as usize;
 
@@ -46,17 +40,11 @@ impl<'a> Number<'a> {
         for y in range_y {
             let line = data[y];
             let s = &line[range_x.clone()];
-
-            // 2つ以上のギアが隣接している場合はなさそう。
-            if let Some(index) = s.find(|c: char| c == '*') {
+            if let Some(index) = s.find(pat) {
                 return Some(((range_x.start + index) as u32, y as u32));
             }
         }
         None
-    }
-
-    pub fn value_as_u64(&self) -> u64 {
-        self.value.parse::<u64>().expect("should be number")
     }
 }
 
