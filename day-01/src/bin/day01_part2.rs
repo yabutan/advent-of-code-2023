@@ -1,6 +1,7 @@
-use anyhow::Context;
 use std::fs;
 use std::io::{BufRead, BufReader};
+
+use anyhow::Context;
 
 fn main() -> anyhow::Result<()> {
     let r = BufReader::new(fs::File::open("day-01/data/input.txt")?);
@@ -93,8 +94,9 @@ fn parse_line_with_spelled(line: &str) -> anyhow::Result<Option<u32>> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use indoc::indoc;
+
+    use super::*;
 
     #[test]
     fn test_part1() {
