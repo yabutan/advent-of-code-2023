@@ -43,11 +43,12 @@ impl Card {
             .cloned()
             .collect::<Vec<_>>();
 
-        if winning_numbers.is_empty() {
-            return (vec![], 0);
-        }
+        let point = if winning_numbers.is_empty() {
+            0
+        } else {
+            2u32.pow(winning_numbers.len() as u32 - 1)
+        };
 
-        let point = 2u32.pow(winning_numbers.len() as u32 - 1);
         (winning_numbers, point)
     }
 }
