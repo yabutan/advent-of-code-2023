@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
 
 fn parse_line(line: &str) -> anyhow::Result<Option<u32>> {
     let left = line.chars().find(|x| x.is_numeric());
-    let right = line.chars().rev().find(|x| x.is_numeric());
+    let right = line.chars().rfind(|x| x.is_numeric());
 
     match (left, right) {
         (Some(left), Some(right)) => {

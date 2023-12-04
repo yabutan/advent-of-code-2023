@@ -1,16 +1,11 @@
 use std::collections::HashMap;
 
+use nom::character::complete;
 use nom::character::complete::space1;
 use nom::combinator::value;
 use nom::multi::separated_list1;
 use nom::sequence::tuple;
-use nom::{
-    branch::alt,
-    bytes::complete::tag,
-    character::complete::{digit1, space0},
-    combinator::map,
-    IResult,
-};
+use nom::{branch::alt, bytes::complete::tag, character::complete::space0, IResult};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Cube {
@@ -46,10 +41,8 @@ pub fn game_possible(game_info: &GameInfo, max_map: &HashMap<Cube, u32>) -> bool
 }
 
 fn parse_cube(input: &str) -> IResult<&str, (u32, Cube)> {
-    let (input, num) = map(digit1, |s: &str| s.parse().unwrap())(input)?;
-
+    let (input, num) = complete::u32(input)?;
     let (input, _) = space1(input)?;
-
     let (input, cube) = alt((
         value(Cube::Red, tag("red")),
         value(Cube::Green, tag("green")),
@@ -66,7 +59,7 @@ fn parse_cube_set(input: &str) -> IResult<&str, Vec<(u32, Cube)>> {
 fn parse_game_header(input: &str) -> IResult<&str, u32> {
     let (input, _) = tag("Game")(input)?;
     let (input, _) = space1(input)?;
-    let (input, number) = map(digit1, |s: &str| s.parse::<u32>().unwrap())(input)?;
+    let (input, number) = complete::u32(input)?;
     let (input, _) = tag(":")(input)?;
     Ok((input, number))
 }

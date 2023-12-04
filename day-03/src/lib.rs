@@ -1,3 +1,4 @@
+use glam::{uvec2, UVec2};
 use std::cmp::{max, min};
 
 use nom::bytes::complete::take_till;
@@ -9,7 +10,7 @@ use nom_locate::LocatedSpan;
 #[derive(Debug, Eq, PartialEq)]
 pub struct Number<'a> {
     pub value: &'a str,
-    pub pos: (u32, u32), // (x, y)
+    pub pos: UVec2,
 }
 
 impl<'a> Number<'a> {
@@ -24,14 +25,14 @@ impl<'a> Number<'a> {
     }
 
     /// 隣接しているギアの位置を返す、なければNone
-    pub fn gear_pos(&self, data: &[&str]) -> Option<(u32, u32)> {
+    pub fn gear_pos(&self, data: &[&str]) -> Option<UVec2> {
         self.find_round(data, |c: char| c == '*')
     }
 
     /// 周りの指定文字の位置を返す、なければNone
-    fn find_round(&self, data: &[&str], pat: fn(char) -> bool) -> Option<(u32, u32)> {
-        let pos_x = self.pos.0 as usize;
-        let pos_y = self.pos.1 as usize;
+    fn find_round(&self, data: &[&str], pat: fn(char) -> bool) -> Option<UVec2> {
+        let pos_x = self.pos.x as usize;
+        let pos_y = self.pos.y as usize;
 
         let range_x =
             max(0, pos_x.saturating_sub(1))..min(data[0].len(), pos_x + self.value.len() + 1);
@@ -41,7 +42,7 @@ impl<'a> Number<'a> {
             let line = data[y];
             let s = &line[range_x.clone()];
             if let Some(index) = s.find(pat) {
-                return Some(((range_x.start + index) as u32, y as u32));
+                return Some(uvec2((range_x.start + index) as u32, y as u32));
             }
         }
         None
@@ -65,7 +66,7 @@ fn parse_number(input: Span) -> IResult<Span, Number> {
         input,
         Number {
             value: num.fragment(),
-            pos: (num.get_column() as u32 - 1, num.location_line() - 1),
+            pos: uvec2(num.get_column() as u32 - 1, num.location_line() - 1),
         },
     ))
 }
@@ -95,12 +96,12 @@ mod tests {
 
         #[rustfmt::skip]
             let patterns = [
-            (Number { value: "467", pos: (0, 0) }, true),
-            (Number { value: "35",  pos: (2, 2) }, true),
-            (Number { value: "755", pos: (6, 7) }, true),
+            (Number { value: "467", pos: uvec2(0, 0) }, true),
+            (Number { value: "35",  pos: uvec2(2, 2) }, true),
+            (Number { value: "755", pos: uvec2(6, 7) }, true),
 
-            (Number { value: "114", pos: (5, 0) }, false),
-            (Number { value: "58",  pos: (7, 5) }, false),
+            (Number { value: "114", pos: uvec2(5, 0) }, false),
+            (Number { value: "58",  pos: uvec2(7, 5) }, false),
         ];
 
         for (number, expected) in patterns {
@@ -112,12 +113,12 @@ mod tests {
     fn test_parse_numbers() {
         let numbers = parse_numbers(INPUT).unwrap();
 
-        #[rustfmt::skip] 
+        #[rustfmt::skip]
         let patterns = [
-            (0, Number { value: "467", pos: (0, 0)}),
-            (1, Number { value: "114", pos: (5, 0)}),
-            (8, Number { value: "664", pos: (1, 9)}),
-            (9, Number { value: "598", pos: (5, 9)}),
+            (0, Number { value: "467", pos: uvec2(0, 0)}),
+            (1, Number { value: "114", pos: uvec2(5, 0)}),
+            (8, Number { value: "664", pos: uvec2(1, 9)}),
+            (9, Number { value: "598", pos: uvec2(5, 9)}),
         ];
 
         assert_eq!(numbers.len(), 10);
@@ -133,16 +134,16 @@ mod tests {
 
         #[rustfmt::skip]
         let patterns = [
-            (0, Some((3, 1))),
+            (0, Some(uvec2(3, 1))),
             (1, None),
-            (2, Some((3, 1))),
+            (2, Some(uvec2(3, 1))),
             (3, None),
-            (4, Some((3, 4))),
+            (4, Some(uvec2(3, 4))),
             (5, None),
             (6, None),
-            (7, Some((5, 8))),
+            (7, Some(uvec2(5, 8))),
             (8, None),
-            (9, Some((5, 8))),
+            (9, Some(uvec2(5, 8))),
         ];
 
         for (i, gear_pos) in patterns {

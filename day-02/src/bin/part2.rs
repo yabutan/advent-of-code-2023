@@ -32,9 +32,7 @@ fn power(game_info: &GameInfo) -> u32 {
         }
     }
 
-    map.into_values()
-        .reduce(|acc, x| acc * x)
-        .unwrap_or_default()
+    map.into_values().product()
 }
 
 #[cfg(test)]

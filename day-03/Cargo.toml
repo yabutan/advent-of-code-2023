@@ -12,5 +12,6 @@ nom = "7.1"
 nom_locate = "4.2"
 indoc = "2.0"
 rstest = "0.18"
+glam = "0.24"
 
 
