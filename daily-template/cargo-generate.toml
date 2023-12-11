@@ -1,0 +1,5 @@
+[placeholders.title]
+type = "string"
+prompt = "Title for README"
+
+
