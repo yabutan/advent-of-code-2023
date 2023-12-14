@@ -20,19 +20,15 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Eq, PartialEq)]
-struct Reflection {
-    count: u32,
-    start: u32,
-}
-
 fn process(input: &str) -> anyhow::Result<String> {
     let (_, data) = parse_input(input).map_err(|e| anyhow::anyhow!("{:?}", e))?;
 
+    let smudge = 1;
+
     let mut total = 0;
     for p in &data.patterns {
-        let rows = find_reflection_rows(p, 1);
-        let columns = find_reflection_rows(&transpose(p), 1);
+        let rows = find_reflection(p, smudge);
+        let columns = find_reflection(&transpose(p), smudge);
 
         total += match (&rows, &columns) {
             (Some(rows), Some(columns)) if rows.count > columns.count => rows.start * 100,
@@ -46,13 +42,20 @@ fn process(input: &str) -> anyhow::Result<String> {
     Ok(total.to_string())
 }
 
+struct InputData<'a> {
+    patterns: Vec<Pattern<'a>>,
+}
+
 #[derive(Debug)]
 struct Pattern<'a> {
     lines: Vec<Cow<'a, str>>,
     size: UVec2,
 }
-struct InputData<'a> {
-    patterns: Vec<Pattern<'a>>,
+
+#[derive(Debug, Eq, PartialEq)]
+struct Reflection {
+    count: u32,
+    start: u32,
 }
 
 fn transpose<'a>(pattern: &Pattern) -> Pattern<'a> {
@@ -87,70 +90,60 @@ fn parse_input(input: &str) -> IResult<&str, InputData> {
     Ok((input, InputData { patterns }))
 }
 
-/// l: 許容する不一致文字数
-/// return: 一致するなら、Some(まだ許容できる不一致数)
-///        一致しないなら、None
-fn match_line(a: &str, b: &str, mut l: usize) -> Option<usize> {
+fn match_lines(a: &str, b: &str, rest_of_smudge: &mut usize) -> bool {
     let mut a = a.chars();
     let mut b = b.chars();
 
     loop {
-        let (Some(c1), Some(c2)) = (a.next(), b.next()) else {
-            break;
-        };
-
-        if c1 == c2 {
-            continue;
+        match (a.next(), b.next()) {
+            (None, None) => break,
+            (Some(c1), Some(c2)) if c1 == c2 => continue,
+            (Some(_), Some(_)) => {
+                if *rest_of_smudge == 0 {
+                    return false;
+                }
+                *rest_of_smudge -= 1;
+            }
+            _ => continue,
         }
-
-        if l == 0 {
-            return None;
-        }
-
-        l -= 1;
     }
-    Some(l)
+
+    true
 }
 
-fn find_reflection_rows(pattern: &Pattern, l: usize) -> Option<Reflection> {
+/// smudge: 汚れ個数
+fn find_reflection(pattern: &Pattern, smudge: usize) -> Option<Reflection> {
     let mut reflactions = Vec::new();
-    for (i, lines) in pattern.lines.windows(2).enumerate() {
-        if let Some(l) = match_line(&lines[0], &lines[0], l) {
-            let (reflection, l) = count_reflection(pattern, i, l);
-            if l == 0 {
-                reflactions.push(reflection);
-            }
+    for i in 0..(pattern.lines.len() - 1) {
+        if let Some(reflection) = seek(pattern, i, smudge) {
+            reflactions.push(reflection);
         }
     }
 
+    // 複数ある場合は、一番広い範囲のものを選ぶ
     reflactions.into_iter().max_by_key(|r| r.count)
 }
 
-fn get_row<'a>(pattern: &'a Pattern, i: i32) -> Option<Cow<'a, str>> {
+fn get_line<'a>(pattern: &'a Pattern, i: i32) -> Option<Cow<'a, str>> {
     if i < 0 {
         return None;
     }
     pattern.lines.get(i as usize).cloned()
 }
 
-/// l: 許容する不一致文字数
-fn count_reflection(pattern: &Pattern, i: usize, mut l: usize) -> (Reflection, usize) {
+fn seek(pattern: &Pattern, i: usize, mut rest_of_smudge: usize) -> Option<Reflection> {
     let mut u = i as i32;
     let mut d = i as i32 + 1;
     loop {
-        let up = get_row(pattern, u);
-        let down = get_row(pattern, d);
+        let up = get_line(pattern, u);
+        let down = get_line(pattern, d);
 
         // どちらもNoneなら終了
         if up.is_none() && down.is_none() {
             break;
-        }
-
-        // 中身が違うなら終了
-        if let (Some(up), Some(down)) = (up, down) {
-            if let Some(l2) = match_line(&up, &down, l) {
-                l = l2;
-            } else {
+        } else if let (Some(up), Some(down)) = (up, down) {
+            // 中身が違うなら終了
+            if !match_lines(&up, &down, &mut rest_of_smudge) {
                 break;
             }
         }
@@ -159,13 +152,15 @@ fn count_reflection(pattern: &Pattern, i: usize, mut l: usize) -> (Reflection, u
         d += 1;
     }
 
-    (
-        Reflection {
-            count: (d - i as i32 - 1) as u32,
-            start: i as u32 + 1,
-        },
-        l,
-    )
+    if rest_of_smudge != 0 {
+        // 汚れの数が一致していない。
+        return None;
+    }
+
+    Some(Reflection {
+        count: (d - i as i32 - 1) as u32,
+        start: i as u32 + 1,
+    })
 }
 
 #[cfg(test)]
@@ -193,36 +188,61 @@ mod tests {
     "#};
 
     #[test]
-    fn test_match_line() {
-        assert_eq!(match_line("#.##..##.", "#.##..##.", 0), Some(0));
-        assert_eq!(match_line("#.##..##.", "#.##..##.", 1), Some(1));
-        assert_eq!(match_line("#.##..##.", "..##..##.", 0), None);
-        assert_eq!(match_line("#.##..##.", "..##..##.", 1), Some(0));
+    fn test_match_lines() {
+        assert!(match_lines("#.##..##.", "#.##..##.", &mut 0));
+        assert!(!match_lines("#.##..##.", "..##..##.", &mut 0));
+
+        let mut smudge = 1;
+        assert!(match_lines("#.##..##.", "#.##..##.", &mut smudge));
+        assert_eq!(smudge, 1);
+
+        let mut smudge = 1;
+        assert!(match_lines("#.##..##.", "..##..##.", &mut smudge));
+        assert_eq!(smudge, 0);
     }
 
     #[test]
-    fn test_find_reflection_rows() {
+    fn test_transpose() {
+        let input = indoc! {r#"
+        #.##
+        ..#.
+        ##..
+        "#};
+
+        let expect = indoc! {r#"
+        #.#
+        ..#
+        ##.
+        #..
+        "#};
+
+        let (_, data) = parse_input(input).unwrap();
+        let p = transpose(&data.patterns[0]);
+        assert_eq!(p.size, uvec2(3, 4));
+        assert_eq!(p.lines.join("\n") + "\n", expect);
+    }
+
+    #[test]
+    fn test_find_reflection() {
         let (_, data) = parse_input(INPUT).unwrap();
 
         let p = &data.patterns[0];
         assert_eq!(
-            find_reflection_rows(p, 0),
+            find_reflection(p, 0),
             Some(Reflection { count: 2, start: 3 })
         );
-        let p = &transpose(p);
         assert_eq!(
-            find_reflection_rows(p, 0),
+            find_reflection(&transpose(p), 0),
             Some(Reflection { count: 5, start: 5 })
         );
 
         let p = &data.patterns[1];
         assert_eq!(
-            find_reflection_rows(p, 0),
+            find_reflection(p, 0),
             Some(Reflection { count: 4, start: 4 })
         );
-        let p = &transpose(p);
         assert_eq!(
-            find_reflection_rows(p, 0),
+            find_reflection(&transpose(p), 0),
             Some(Reflection { count: 1, start: 7 })
         );
     }
@@ -233,6 +253,10 @@ mod tests {
         for p in &data.patterns {
             println!("{:?}", p);
         }
+
+        assert_eq!(data.patterns.len(), 2);
+        assert_eq!(data.patterns[0].size, uvec2(9, 7));
+        assert_eq!(data.patterns[1].size, uvec2(9, 7));
     }
 
     #[test]
