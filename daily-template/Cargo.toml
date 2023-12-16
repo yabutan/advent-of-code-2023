@@ -11,4 +11,5 @@ nom_locate = { workspace = true }
 indoc = { workspace = true }
 rstest = { workspace = true }
 glam = { workspace = true }
+linked-hash-map = { workspace = true }
 
