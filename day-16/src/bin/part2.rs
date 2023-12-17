@@ -177,15 +177,6 @@ mod tests {
 
     #[test]
     fn test_direction_mirror() {
-        // Symbol::Mirror("/") => {
-        //     proceed_beam(data, state, pos, -direction.yx());
-        //     return;
-        // }
-        // Symbol::Mirror("\\") => {
-        //     proceed_beam(data, state, pos, -direction.yx());
-        //     return;
-        // }
-
         let right = ivec2(1, 0);
         let up = ivec2(0, -1);
         let down = ivec2(0, 1);
