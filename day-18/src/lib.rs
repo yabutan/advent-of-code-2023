@@ -2,9 +2,9 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete;
 use nom::character::complete::{alphanumeric1, char, newline, space1};
-use nom::IResult;
 use nom::multi::separated_list1;
 use nom::sequence::delimited;
+use nom::IResult;
 
 pub type Int = i64;
 
@@ -101,8 +101,8 @@ pub fn calc_area(data: &InputData, p: &[IVec2]) -> Int {
     let area = area.abs();
 
     // Pick's theorem
-    let perimeter: Int = data.operations.iter().map(|o| o.distance).sum();
-    perimeter + (area - perimeter) / 2 + 1
+    let b: Int = data.operations.iter().map(|o| o.distance).sum();
+    b + (area - b) / 2 + 1
 }
 
 #[cfg(test)]
@@ -127,6 +127,102 @@ mod tests {
     L 2 (#015232)
     U 2 (#7a21e3)
     "#};
+
+    #[test]
+    pub fn test_calc() {
+        let p = [
+            IVec2::new(0, 0),
+            IVec2::new(9, 0),
+            IVec2::new(9, 9),
+            IVec2::new(0, 9),
+            IVec2::new(0, 0),
+        ];
+
+        // Shoelace Theorem (座標式, 靴紐法)
+        let mut area = 0;
+        for i in 0..p.len() {
+            let i2 = (i + 1) % p.len();
+            area += p[i].x * p[i2].y - p[i2].x * p[i].y;
+        }
+        let area = area.abs();
+
+        println!("area: {}", area);
+
+        let mut bound = 0;
+        for i in 0..p.len() {
+            let i2 = (i + 1) % p.len();
+            bound += (p[i2] - p[i]).abs().max_element();
+        }
+        println!("bound:{:?}", bound);
+
+        // Pick's theorem
+        let perimeter: Int = 36;
+        let a = perimeter + (area - perimeter) / 2 + 1;
+        println!("area: {}", a);
+    }
+
+    #[test]
+    pub fn test_calc2() {
+        let p = [
+            IVec2::new(0, 0),
+            IVec2::new(1, 0),
+            IVec2::new(1, 1),
+            IVec2::new(0, 1),
+            IVec2::new(0, 0),
+        ];
+
+        // Shoelace Theorem (座標式, 靴紐法)
+        let mut area = 0;
+        for i in 0..p.len() {
+            let i2 = (i + 1) % p.len();
+            area += p[i].x * p[i2].y - p[i2].x * p[i].y;
+        }
+        let area = area.abs();
+
+        println!("area: {}", area);
+
+        let mut bound = 0;
+        for i in 0..p.len() {
+            let i2 = (i + 1) % p.len();
+            bound += (p[i2] - p[i]).abs().max_element();
+        }
+        println!("bound:{:?}", bound);
+
+        // Pick's theorem
+        let perimeter: Int = 4;
+        let a = perimeter + (area - perimeter) / 2 + 1;
+        println!("area: {}", a);
+    }
+
+    #[test]
+    pub fn test_calc_area() {
+        let (_, data) = parse_input(indoc! {r#"
+        R 2 (#70c710)
+        D 2 (#0dc571)
+        L 2 (#5713f0)
+        U 2 (#d2c081)
+        "#})
+        .unwrap();
+        assert_eq!(calc_area(&data, &make_vertices(&data)), 9);
+
+        let (_, data) = parse_input(indoc! {r#"
+        R 1 (#70c710)
+        D 1 (#0dc571)
+        L 1 (#5713f0)
+        U 1 (#d2c081)
+        "#})
+        .unwrap();
+        assert_eq!(calc_area(&data, &make_vertices(&data)), 4);
+
+        let (_, data) = parse_input(indoc! {r#"
+        R 9 (#70c710)
+        D 9 (#0dc571)
+        L 9 (#5713f0)
+        U 9 (#d2c081)
+        "#})
+        .unwrap();
+        assert_eq!(calc_area(&data, &make_vertices(&data)), 100);
+    }
 
     #[test]
     fn test_parse_input() {
