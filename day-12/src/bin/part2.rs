@@ -83,11 +83,6 @@ fn unfold<'a>(criterion: &Criterion) -> Criterion<'a> {
     }
 }
 
-#[derive(Debug)]
-struct Pattern {
-    simulate: String,
-}
-
 enum Sign {
     Dot(u8),
     Hash(u8),

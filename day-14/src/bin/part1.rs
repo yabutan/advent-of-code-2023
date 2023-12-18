@@ -82,14 +82,6 @@ fn get_vertical_line(rocks: &mut [Rock], x: i32) -> Vec<&mut Rock> {
         .collect()
 }
 
-fn get_horizontal_line(rocks: &mut [Rock], y: i32) -> Vec<&mut Rock> {
-    rocks
-        .iter_mut()
-        .filter(|o| o.pos.y == y)
-        .sorted_by_key(|o| o.pos.x)
-        .collect()
-}
-
 fn move_to_north(vertical_line: &mut [&mut Rock]) {
     let mut top = 0;
     for rock in vertical_line {

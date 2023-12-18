@@ -49,8 +49,8 @@ fn process(input: &str) -> anyhow::Result<String> {
         .collect::<Vec<_>>();
 
     let mut v = numbers[0];
-    for i in 1..numbers.len() {
-        v = lcm(v, numbers[i]);
+    for n in numbers.iter().skip(1) {
+        v = lcm(v, *n);
     }
     println!("lcm: {}", v);
 

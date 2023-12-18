@@ -23,14 +23,6 @@ enum Symbol<'a> {
     Splitter(&'a str),
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
 struct FloorState {
     // (x, y, dx, dy)
     paths: HashSet<(Int, Int, Int, Int)>,
