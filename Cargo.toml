@@ -13,3 +13,6 @@ indoc = "2.0"
 rstest = "0.18"
 glam = "0.24"
 linked-hash-map = "0.5"
+num = "0.4"
+num-integer = "0.1"
+
