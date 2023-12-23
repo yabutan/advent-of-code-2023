@@ -83,13 +83,13 @@ fn make_conditions<'a>(
 }
 
 mod parser {
-    use nom::{IResult, Parser};
     use nom::branch::alt;
     use nom::bytes::complete::{is_a, tag};
     use nom::character::complete;
     use nom::character::complete::{alpha1, line_ending};
     use nom::multi::{many1, separated_list1};
     use nom::sequence::{delimited, separated_pair, tuple};
+    use nom::{IResult, Parser};
 
     use super::*;
 

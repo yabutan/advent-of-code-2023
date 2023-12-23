@@ -5,8 +5,8 @@ use std::io::{BufReader, Read};
 use glam::IVec2;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while};
-use nom::IResult;
 use nom::multi::many0;
+use nom::IResult;
 use nom_locate::LocatedSpan;
 
 fn main() -> anyhow::Result<()> {
