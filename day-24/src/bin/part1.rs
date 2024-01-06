@@ -2,16 +2,7 @@ use std::fs;
 use std::io::{BufReader, Read};
 use std::ops::RangeInclusive;
 
-use nom::bytes::complete::tag;
-use nom::character::complete;
-use nom::character::complete::{line_ending, space1};
-use nom::multi::separated_list1;
-use nom::sequence::{delimited, preceded, separated_pair, tuple};
-use nom::IResult;
-
-type IVec3 = glam::I64Vec3;
-type Vec2 = glam::DVec2;
-type Float = f64;
+use day_24::{parse_input, Float, IVec3, Vec2};
 
 fn main() -> anyhow::Result<()> {
     let mut r = BufReader::new(fs::File::open("day-24/data/input.txt")?);
@@ -39,36 +30,6 @@ fn process(input: &str, range: &RangeInclusive<Float>) -> anyhow::Result<String>
     }
 
     Ok(format!("{}", count))
-}
-
-#[derive(Debug)]
-struct InputData {
-    hailstones: Vec<(IVec3, IVec3)>,
-}
-
-fn parse_ivec3(input: &str) -> IResult<&str, IVec3> {
-    let sep = || tuple((tag(","), space1));
-
-    let (input, (x, y, z)) = tuple((
-        complete::i64,
-        preceded(sep(), complete::i64),
-        preceded(sep(), complete::i64),
-    ))(input)?;
-
-    Ok((input, IVec3::new(x, y, z)))
-}
-
-fn parse_input(input: &str) -> IResult<&str, InputData> {
-    let (input, hailstones) = separated_list1(
-        line_ending,
-        separated_pair(
-            parse_ivec3,
-            delimited(space1, tag("@"), space1),
-            parse_ivec3,
-        ),
-    )(input)?;
-
-    Ok((input, InputData { hailstones }))
 }
 
 fn get_t(x: Float, d: Float, xt: Float) -> Float {
@@ -251,15 +212,6 @@ mod tests {
 
         println!("x1={}, y1={}", x1, y1);
         println!("x2={}, y2={}", x2, y2);
-    }
-
-    #[test]
-    fn test_parse_input() {
-        let (_, data) = parse_input(INPUT).unwrap();
-
-        for x in data.hailstones {
-            println!("{:?}", x);
-        }
     }
 
     #[test]

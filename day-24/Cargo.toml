@@ -13,3 +13,7 @@ rstest = { workspace = true }
 glam = { workspace = true }
 linked-hash-map = { workspace = true }
 
+# z3 solver のRustバインディング
+# (ビルドするには、ライブラリインストールが必要)
+z3 = "0.12"
+
