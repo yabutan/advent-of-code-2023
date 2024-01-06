@@ -17,4 +17,5 @@ cargo install cargo-generate
 cargo generate --path ./daily-template --name day-01
 ```
 
+![calender](/aoc2023.png)
 
