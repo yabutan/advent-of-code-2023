@@ -1,14 +1,18 @@
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::HashMap;
 use std::fs;
 use std::io::{BufReader, Read};
 
-use glam::{IVec2, Vec2Swizzles};
-use itertools::Itertools;
+use glam::IVec2;
+use graph::NodeIndex;
+use petgraph::algo::all_simple_paths;
+use petgraph::graph;
+use petgraph::graph::UnGraph;
 
-use day_23::{parse_input, InputData, Int};
+use day_23::parse_input;
 
 fn main() -> anyhow::Result<()> {
     let mut r = BufReader::new(fs::File::open("day-23/data/input.txt")?);
+    //let mut r = BufReader::new(fs::File::open("day-23/data/input_example.txt")?);
     let mut input = String::new();
     r.read_to_string(&mut input)?;
 
@@ -20,124 +24,54 @@ fn main() -> anyhow::Result<()> {
 
 fn process(input: &str) -> anyhow::Result<String> {
     let data = parse_input(input);
-    let ret = search(&data).expect("no answer found");
-    Ok(format!("{}", ret))
-}
 
-fn get_neighbours(
-    data: &InputData,
-    pos: &IVec2,
-    direction: &IVec2,
-    paths: &HashSet<IVec2>,
-    edges: &HashSet<IVec2>,
-) -> Vec<(IVec2, IVec2)> {
-    // match data.get(pos).expect("no sign found") {
-    //     ">" => return vec![],
-    //     "V" => return vec![(*pos + IVec2::Y, IVec2::Y)],
-    //     _ => {}
-    // }
+    let make_edge =
+        |g: &mut UnGraph<IVec2, ()>, indexes: &HashMap<IVec2, NodeIndex>, a: &IVec2, b: &IVec2| {
+            match data.get(b) {
+                None | Some("#") => {}
+                _ => {
+                    g.add_edge(indexes[a], indexes[b], ());
+                }
+            }
+        };
 
-    let mut neighbours = Vec::new();
-    for d in [*direction, direction.yx(), -direction.yx()] {
-        let pos = *pos + d;
-        if paths.contains(&pos) {
-            continue;
-        }
-        if edges.contains(&pos) {
-            continue;
-        }
-
-        if let Some(sign) = data.get(&pos) {
-            match sign {
-                "." => {}
-                ">" => {}
-                "v" => {}
-                // ">" if d == IVec2::X => {}
-                // "v" if d == IVec2::Y => {}
-                _ => continue,
+    let mut indexes = HashMap::new();
+    let mut g: UnGraph<IVec2, ()> = UnGraph::new_undirected();
+    for y in 0..data.size.y {
+        for x in 0..data.size.x {
+            let current_pos = IVec2::new(x, y);
+            if let Some("#") = data.get(&current_pos) {
+                continue;
             }
 
-            neighbours.push((pos, d));
-        }
-    }
-    neighbours
-}
-
-fn search(data: &InputData) -> Option<Int> {
-    let mut queue = BinaryHeap::new();
-    let mut entries = HashMap::new();
-
-    let mut entry_id_inc = 1;
-    entries.insert(
-        entry_id_inc,
-        (data.start_pos, IVec2::Y, HashSet::new(), None),
-    );
-    queue.push((0, entry_id_inc));
-
-    let mut records = HashMap::new();
-    let mut edges = HashSet::new();
-
-    while let Some((distance, entry_id)) = queue.pop() {
-        let (pos, direction, mut paths, prev_path) =
-            entries.remove(&entry_id).expect("entry not found");
-
-        if pos == data.end_pos {
-            // found the end
-            let max = records.get(&(data.end_pos, IVec2::Y));
-            println!(
-                "found the end: {} queue.len: {} max:{:?}",
-                distance,
-                queue.len(),
-                max
-            );
-            continue;
-        }
-
-        let new_distance = distance + 1;
-
-        let neighbours = get_neighbours(data, &pos, &direction, &paths, &edges);
-        if neighbours.is_empty() {
-            if let Some(prev_path) = prev_path {
-                edges.insert(prev_path);
-                println!("edge: {:?}", prev_path);
-            }
-            continue;
-        }
-
-        let is_cross = neighbours.len() >= 2;
-        if is_cross {
-            // 分岐路であれば、通ったことがあると、path記録しておく。
-            paths.insert(pos);
-        }
-        for next in neighbours {
-            entry_id_inc += 1;
-            entries.insert(
-                entry_id_inc,
-                (
-                    next.0,
-                    next.1,
-                    paths.clone(),
-                    if is_cross { Some(next.0) } else { None },
-                ),
-            );
-            queue.push((new_distance, entry_id_inc));
-
-            records
-                .entry(next)
-                .and_modify(|best_distance| {
-                    if *best_distance < new_distance {
-                        *best_distance = new_distance;
-                    }
-                })
-                .or_insert(new_distance);
+            indexes.insert(IVec2::new(x, y), g.add_node(current_pos));
+            make_edge(&mut g, &indexes, &current_pos, &IVec2::new(x - 1, y));
+            make_edge(&mut g, &indexes, &current_pos, &IVec2::new(x, y - 1));
         }
     }
 
-    for x in records.iter().sorted_by_key(|(_, v)| *v) {
-        println!("record: {:?}", x);
+    // Output the graph to dot file
+    {
+        use petgraph::dot::{Config, Dot};
+        use std::fs::File;
+        use std::io::{BufWriter, Write};
+        let mut w = BufWriter::new(File::create("day-23/out/graph.dot")?);
+        w.write_all(format!("{:?}", Dot::with_config(&g, &[Config::EdgeNoLabel])).as_bytes())?;
     }
 
-    records.get(&(data.end_pos, IVec2::Y)).cloned()
+    let path = all_simple_paths::<Vec<_>, _>(
+        &g,
+        indexes[&data.start_pos],
+        indexes[&data.end_pos],
+        0,
+        None,
+    )
+    .max_by_key(|p| p.len())
+    .expect("no path found");
+
+    println!("longest path: {:?}", path);
+
+    Ok(format!("{}", path.len() - 1))
 }
 
 #[cfg(test)]
@@ -171,13 +105,6 @@ mod tests {
     #.....###...###...#...#
     #####################.#
     "#};
-
-    #[test]
-    fn test_search() {
-        let data = parse_input(INPUT);
-        let ret = search(&data);
-        println!("ret: {:?}", ret);
-    }
 
     #[test]
     fn test_process() {
