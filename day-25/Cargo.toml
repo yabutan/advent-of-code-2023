@@ -12,7 +12,6 @@ indoc = { workspace = true }
 rstest = { workspace = true }
 glam = { workspace = true }
 linked-hash-map = { workspace = true }
-
-petgraph = "0.6"
-rustworkx-core = "0.13"
+petgraph = { workspace = true }
+rustworkx-core = { workspace = true }
 

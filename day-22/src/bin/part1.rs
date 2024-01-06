@@ -123,7 +123,7 @@ fn can_be_disintegrate(height_map: &HeightMap, entry_id: Int) -> bool {
     })
 }
 
-fn find_bricks_with_z<'a>(entries: &'a HashMap<Int, BrickEntry>, z: Int) -> Vec<Int> {
+fn find_bricks_with_z(entries: &HashMap<Int, BrickEntry>, z: Int) -> Vec<Int> {
     entries
         .values()
         .filter(|e| e.z_range().contains(&z))

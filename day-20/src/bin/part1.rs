@@ -174,7 +174,7 @@ impl<'a> FlpFlopState<'a> {
                     queues.push_back((self.label, Low, next));
                 }
             }
-            (_, High) => return,
+            (_, High) => (),
         }
     }
 }

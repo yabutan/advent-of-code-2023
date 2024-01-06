@@ -40,9 +40,9 @@ pub fn parse_input(input: &str) -> IResult<&str, InputData> {
     let size = IVec2::new(lines[0].len() as Int, lines.len() as Int);
 
     let mut grid = Vec::new();
-    for (_y, line) in lines.iter().enumerate() {
+    for line in lines.iter() {
         let mut row = Vec::new();
-        for (_x, c) in line.chars().enumerate() {
+        for c in line.chars() {
             row.push(c.to_digit(10).unwrap() as Int);
         }
         grid.push(row);

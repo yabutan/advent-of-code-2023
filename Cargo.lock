@@ -110,7 +110,7 @@ name = "day-03"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.24.2",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -135,7 +135,7 @@ name = "day-05"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.24.2",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -148,7 +148,7 @@ name = "day-06"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.24.2",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -161,7 +161,7 @@ name = "day-07"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.24.2",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -174,7 +174,7 @@ name = "day-08"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.24.2",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -187,7 +187,7 @@ name = "day-09"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.24.2",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -200,7 +200,7 @@ name = "day-10"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -213,7 +213,7 @@ name = "day-11"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -226,7 +226,7 @@ name = "day-12"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "log",
@@ -240,7 +240,7 @@ name = "day-13"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -253,7 +253,7 @@ name = "day-14"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "nom",
@@ -266,7 +266,7 @@ name = "day-15"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -280,7 +280,7 @@ name = "day-16"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -294,7 +294,7 @@ name = "day-17"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -308,7 +308,7 @@ name = "day-18"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -322,7 +322,7 @@ name = "day-19"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -336,7 +336,7 @@ name = "day-20"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -352,7 +352,7 @@ name = "day-21"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -366,7 +366,7 @@ name = "day-22"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -380,7 +380,7 @@ name = "day-23"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -394,7 +394,7 @@ name = "day-24"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -408,7 +408,7 @@ name = "day-25"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "glam",
+ "glam 0.25.0",
  "indoc",
  "itertools 0.12.0",
  "linked-hash-map",
@@ -548,6 +548,12 @@ name = "glam"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5418c17512bdf42730f9032c74e1ae39afc408745ebb2acf72fbc4691c17945"
+
+[[package]]
+name = "glam"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "151665d9be52f9bb40fc7966565d39666f2d1e69233571b71b87791c7e0528b3"
 
 [[package]]
 name = "glob"

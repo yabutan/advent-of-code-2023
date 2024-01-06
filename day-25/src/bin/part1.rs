@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufReader, Read};
 
 use nom::bytes::complete::tag;
 use nom::character::complete::{alpha1, line_ending, space1};
